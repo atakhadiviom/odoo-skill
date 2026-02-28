@@ -1,0 +1,151 @@
+{
+  "odoo_versions": {
+    "14.0": {
+      "python_version": "3.8",
+      "postgresql_version": "12",
+      "supported": true,
+      "lts": false,
+      "eol_date": "2029-04-01"
+    },
+    "15.0": {
+      "python_version": "3.9",
+      "postgresql_version": "13",
+      "supported": true,
+      "lts": false,
+      "eol_date": "2029-11-01"
+    },
+    "16.0": {
+      "python_version": "3.10",
+      "postgresql_version": "14",
+      "supported": true,
+      "lts": false,
+      "eol_date": "2030-11-01"
+    },
+    "17.0": {
+      "python_version": "3.10",
+      "postgresql_version": "14",
+      "supported": true,
+      "lts": true,
+      "eol_date": "2034-05-01"
+    },
+    "18.0": {
+      "python_version": "3.11",
+      "postgresql_version": "15",
+      "supported": true,
+      "lts": false,
+      "eol_date": "2035-11-01"
+    },
+    "19.0": {
+      "python_version": "3.11",
+      "postgresql_version": "15",
+      "supported": true,
+      "lts": true,
+      "eol_date": "2036-05-01",
+      "features": {
+        "owl_version": "2.0",
+        "web_framework": "OWL 2.0 with houston",
+        "new_widgets": [
+          "ai_text_assistant",
+          "rich_text_content",
+          "enhanced_kanban",
+          "mobile_responsive_forms"
+        ],
+        "api_changes": [
+          "Updated ORM decorators",
+          "Enhanced API endpoints",
+          "Improved async handling",
+          "New webhook system"
+        ],
+        "frontend_improvements": [
+          "OWL 2.0 component architecture",
+          "Enhanced mobile responsiveness",
+          "Improved performance with lazy loading",
+          "New UI component library"
+        ]
+      }
+    }
+  },
+  "default_version": "19.0",
+  "development_settings": {
+    "auto_reload": true,
+    "dev_mode": true,
+    "log_level": "debug",
+    "test_enabled": true,
+    "without_demo": false
+  },
+  "environments": {
+    "local": {
+      "type": "local",
+      "command": "odoo",
+      "config_file": "odoo.conf",
+      "addons_path": "./addons",
+      "database_host": "localhost"
+    },
+    "docker": {
+      "type": "docker",
+      "image": "odoo:19.0",
+      "compose_file": "docker-compose.yml",
+      "ports": {
+        "odoo": "8069:8069",
+        "postgres": "5432:5432"
+      }
+    },
+    "odoo_sh": {
+      "type": "odoo.sh",
+      "platform_url": "https://odoo.sh",
+      "deployment": "git push",
+      "branches": ["main", "production", "staging"]
+    }
+  },
+  "module_standards": {
+    "naming_convention": "lowercase_with_underscores",
+    "license": "LGPL-3",
+    "author": "Your Company",
+    "website": "https://www.yourcompany.com",
+    "depends": ["base"],
+    "data_files": [
+      "security/security_rules.xml",
+      "security/ir.model.access.csv",
+      "views/main_model_views.xml",
+      "views/menus.xml"
+    ],
+    "assets": {
+      "web.assets_frontend": [
+        "module_name/static/src/components/**/*.js",
+        "module_name/static/src/**/*.scss"
+      ],
+      "web.assets_backend": [
+        "module_name/static/src/xml/**/*.xml"
+      ]
+    }
+  },
+  "python_standards": {
+    "version": "3.11+",
+    "style_guide": "PEP 8",
+    "max_line_length": 100,
+    "import_order": [
+      "odoo",
+      "odoo.addons",
+      "third_party",
+      "local"
+    ]
+  },
+  "postgresql_standards": {
+    "version": "15+",
+    "extensions": ["unaccent", "pg_trgm"],
+    "optimizations": {
+      "indexes": true,
+      "constraints": true,
+      "foreign_keys": true
+    }
+  },
+  "testing_framework": {
+    "framework": "pytest-odoo",
+    "coverage_target": 80,
+    "test_types": [
+      "unit",
+      "integration",
+      "ui_tours"
+    ]
+  }
+}

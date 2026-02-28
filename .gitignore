@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Odoo
+*.pyc
+*.pyo
+*.pid
+*.dump
+*.log
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Claude Code
+.claude/projects/
+
+# Temporary
+*.tmp
+*.bak
+*.backup
