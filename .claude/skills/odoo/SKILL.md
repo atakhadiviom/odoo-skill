@@ -207,11 +207,12 @@ class MainModel(models.Model):
             self.currency_id = self.partner_id.property_purchase_currency_id or self.env.company.currency_id
 
     # CRUD Methods
-    @api.model
-    def create(self, vals):
-        if vals.get('name', _('New')) == _('New'):
-            vals['name'] = self.env['ir.sequence'].next_by_code(self._name) or _('New')
-        return super().create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('name', _('New')) == _('New'):
+                vals['name'] = self.env['ir.sequence'].next_by_code(self._name) or _('New')
+        return super().create(vals_list)
 
     def write(self, vals):
         # Custom write logic
@@ -250,7 +251,6 @@ class MainModel(models.Model):
 ### Component Structure (Odoo 19.0)
 
 ```javascript
-/** @odoo-module **/
 import { Component, useState, onMounted, onWillStart } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
@@ -339,7 +339,7 @@ registry.category("actions").add("module_name.my_component", MyComponent);
     <template id="MyComponent" xml:space="preserve">
         <div class="o_my_component">
             <div class="o_component_header">
-                <h4><t t-esc="props.record.data.name"/></h4>
+                <h4><t t-out="props.record.data.name"/></h4>
             </div>
             <div class="o_component_body">
                 <div t-if="state.isLoading" class="text-center">
@@ -350,7 +350,7 @@ registry.category("actions").add("module_name.my_component", MyComponent);
                         class="btn btn-primary"
                         t-on-click="onActionClick"
                         t-att-disabled="props.readonly">
-                        <i class="fa fa-check"/> <t t-esc="_t('Confirm')"/>
+                        <i class="fa fa-check"/> <t t-out="_t('Confirm')"/>
                     </button>
                 </div>
             </div>
@@ -393,21 +393,17 @@ registry.category("actions").add("module_name.my_component", MyComponent);
                 <notebook>
                     <page string="Lines" name="lines">
                         <field name="line_ids">
-                            <tree editable="bottom">
+                            <list editable="bottom">
                                 <field name="product_id"/>
                                 <field name="quantity"/>
                                 <field name="price" widget="monetary"/>
                                 <field name="amount" widget="monetary" sum="Total"/>
-                            </tree>
+                            </list>
                         </field>
                     </page>
                 </notebook>
             </sheet>
-            <div class="oe_chatter">
-                <field name="message_follower_ids"/>
-                <field name="message_ids"/>
-                <field name="activity_ids"/>
-            </div>
+            <chatter/>
         </form>
     </field>
 </record>
@@ -475,10 +471,11 @@ from odoo.exceptions import ValidationError
 
 class TestMainModel(TransactionCase):
 
-    def setUp(self):
-        super().setUp()
-        self.Model = self.env['module_name.main_model']
-        self.partner = self.env.ref('base.res_partner_1')
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.Model = cls.env['module_name.main_model']
+        cls.partner = cls.env['res.partner'].create({'name': 'Test Partner'})
 
     def test_create_record(self):
         """Test creating a new record"""
@@ -503,10 +500,13 @@ class TestMainModel(TransactionCase):
     def test_constraints(self):
         """Test validation constraints"""
         record = self.Model.create({'partner_id': self.partner.id})
+        other_company = self.env['res.company'].create({'name': 'Other Company'})
+        other_partner = self.env['res.partner'].create({
+            'name': 'Other Partner',
+            'company_id': other_company.id,
+        })
         with self.assertRaises(ValidationError):
-            record.partner_id = self.env.ref('base.main_partner').copy({
-                'company_id': self.env.company.copy().id
-            })
+            record.partner_id = other_partner
 
     def test_compute_fields(self):
         """Test computed fields"""
@@ -634,7 +634,7 @@ const orm = owl.Component.current?.services?.orm;
 ### Frontend Migration (OWL 1.x to 2.0)
 
 ```javascript
-// OWL 1.x (Old)
+// OWL 1.x (Old - Odoo <= 15)
 odoo.define('module.MyComponent', function (require) {
     const Widget = require('web.Widget');
     return Widget.extend({
@@ -642,13 +642,109 @@ odoo.define('module.MyComponent', function (require) {
     });
 });
 
-// OWL 2.0 (New)
-/** @odoo-module **/
+// OWL 2.0 (New - Odoo 16+)
+// Note: /** @odoo-module **/ is no longer needed (removed in Odoo 17+)
 import { Component } from "@odoo/owl";
 export class MyComponent extends Component {
     static template = "module_name.MyComponent";
     // ...
 }
+```
+
+### View Type Changes (Odoo 18+)
+
+```xml
+<!-- Old -->
+<field name="line_ids">
+    <tree editable="bottom">...</tree>
+</field>
+
+<!-- New -->
+<field name="line_ids">
+    <list editable="bottom">...</list>
+</field>
+```
+
+> **Note:** Keep XML IDs containing "tree" (e.g. `view_model_tree`) unchanged to avoid breaking dependent modules. Only rename the tag itself.
+
+### Chatter Markup (Odoo 18+)
+
+```xml
+<!-- Old -->
+<div class="oe_chatter">
+    <field name="message_follower_ids"/>
+    <field name="message_ids"/>
+    <field name="activity_ids"/>
+</div>
+
+<!-- New -->
+<chatter/>
+```
+
+### CRUD Override (Odoo 14+)
+
+```python
+# Old — processes one record at a time
+@api.model
+def create(self, vals):
+    return super().create(vals)
+
+# New — processes batch creates efficiently
+@api.model_create_multi
+def create(self, vals_list):
+    return super().create(vals_list)
+```
+
+### QWeb Directives (Odoo 15+)
+
+```xml
+<!-- Old: t-esc (deprecated), t-raw (deprecated) -->
+<t t-esc="record.name"/>
+<t t-raw="record.html_content"/>
+
+<!-- New: t-out (escapes by default) -->
+<t t-out="record.name"/>
+<!-- For trusted HTML, use Markup() in Python and t-out in XML -->
+<t t-out="record.html_content"/>  <!-- only safe if returned as Markup() -->
+```
+
+### OCA 19.0 Specific Changes
+
+```python
+# Old
+from odoo import registry
+self._cr
+self._uid
+self._context
+
+# New
+from odoo.modules.registry import Registry
+self.env.cr
+self.env.uid
+self.env.context
+
+# Old
+def read_group(self, domain, fields, groupby, ...):
+    ...
+
+# New (internal use)
+def _read_group(self, domain, groupby, aggregates):
+    ...
+
+# Old
+@route('/path', type='json')
+# New
+@route('/path', type='jsonrpc')
+
+# Old: _sql_constraints
+_sql_constraints = [
+    ('name_unique', 'UNIQUE(name)', 'Name must be unique!'),
+]
+
+# New (Odoo 19)
+_constraints = [
+    models.Constraint('UNIQUE(name)', 'Name must be unique!'),
+]
 ```
 
 ## References
