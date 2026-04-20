@@ -731,19 +731,12 @@ def read_group(self, domain, fields, groupby, ...):
 def _read_group(self, domain, groupby, aggregates):
     ...
 
-# Old
+# Unchanged — type='json' is still correct for JSON-RPC routes
 @route('/path', type='json')
-# New
-@route('/path', type='jsonrpc')
 
-# Old: _sql_constraints
+# _sql_constraints tuple list is still the correct pattern in Odoo 19
 _sql_constraints = [
     ('name_unique', 'UNIQUE(name)', 'Name must be unique!'),
-]
-
-# New (Odoo 19)
-_constraints = [
-    models.Constraint('UNIQUE(name)', 'Name must be unique!'),
 ]
 ```
 
