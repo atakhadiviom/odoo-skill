@@ -11,6 +11,20 @@ This skill provides Odoo 19.0 specific development guidance including:
 - New field widgets and components
 - Enhanced API patterns
 - Testing and debugging strategies
+- eCommerce product content management via XML-RPC API (see `ecommerce-product-content.md`)
+
+## eCommerce Product Content (API)
+
+For writing product descriptions, SEO, and Arabic translations via the XML-RPC API, see:
+**[`ecommerce-product-content.md`](ecommerce-product-content.md)**
+
+Key topics covered:
+- Correct field: `website_description` (not `description_sale`)
+- HTML sanitizer rules — Bootstrap classes only, no inline styles, no HTML comments
+- Odoo 16+ translation pattern — write EN base first (`lang='en_US'`), then AR (`lang='ar_001'`)
+- RTL Arabic wrapper with `dir="rtl"`
+- SEO meta fields (`website_meta_title`, `website_meta_description`, `website_meta_keywords`)
+- Known bug: `WebsiteBuilderClientAction.onIframeLoad` null body error and how to fix it
 
 ## Odoo 19.0 Quick Reference
 
