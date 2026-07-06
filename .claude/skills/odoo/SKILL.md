@@ -6,9 +6,8 @@ A comprehensive Odoo 19.0 development reference for Claude Code, covering module
 
 This skill provides Odoo 19.0 specific development guidance including:
 - OWL 2.0 frontend framework patterns
-- Python 3.11+ compatibility
-- PostgreSQL 15+ considerations
-- New field widgets and components
+- Python 3.10+ / PostgreSQL 13+ minimum requirements
+- Verified field widgets and view patterns
 - Enhanced API patterns
 - Testing and debugging strategies
 - eCommerce product content management via XML-RPC API (see `ecommerce-product-content.md`)
@@ -30,22 +29,26 @@ Key topics covered:
 
 ### Version Compatibility
 
-| Odoo Version | Python | PostgreSQL | LTS | Status |
-|--------------|--------|------------|-----|--------|
+| Odoo Version | Python (min) | PostgreSQL (min) | LTS | Status |
+|--------------|--------------|-------------------|-----|--------|
 | 14.0 | 3.8 | 12 | No | Maintenance |
 | 15.0 | 3.9 | 13 | No | Maintenance |
 | 16.0 | 3.10 | 14 | No | Maintenance |
 | 17.0 | 3.10 | 14 | Yes | LTS until 2034-05 |
-| 18.0 | 3.11 | 15 | No | Stable |
-| **19.0** | **3.11+** | **15+** | **Yes** | **Latest LTS** |
+| 18.0 | 3.10 | 12 | No | Stable |
+| **19.0** | **3.10+** | **13+** | **Yes** | **Latest LTS** |
 
-### Odoo 19.0 Key Features
+> Verified against the [Install from source](https://www.odoo.com/documentation/19.0/administration/on_premise/source.html) page: "Odoo requires Python 3.10 or later" (minimum unchanged since 17.0) and "Changed in version 19: Minimum requirement updated from PostgreSQL 12 to PostgreSQL 13." These are the official *minimums* — production environments commonly run newer Python/PostgreSQL versions.
 
-1. **OWL 2.0 Framework** - Complete rewrite of frontend components
-2. **AI Integration** - New `ai_text_assistant` widget for AI-powered text editing
-3. **Enhanced Mobile Support** - Improved responsive forms and views
-4. **Performance Improvements** - Lazy loading and optimized rendering
-5. **New Field Widgets** - `rich_text_content`, enhanced kanban, mobile-optimized widgets
+### Odoo 19.0 Key Features (verified against the [official changelog](https://www.odoo.com/documentation/19.0/developer/reference/backend/orm/changelog.html))
+
+1. **OWL 2.0 Framework** - Frontend components use `@odoo/owl`, `static template`/`static props`, and hook-based lifecycle (`onWillStart`, `onMounted`, etc.)
+2. **Constraints/indexes as model attributes** - `models.Constraint(...)` / `models.Index(...)` (since 18.1) supersede `_sql_constraints`
+3. **`read_group` deprecated** - use `_read_group` internally or `formatted_read_group` as the public API (since 18.2)
+4. **`jsonrpc` controller type** - `@route(type='json')` was renamed to `type='jsonrpc'` (since 18.1); `type='http'` is unchanged
+5. **`odoo.osv` deprecated, `record._cr`/`_context`/`_uid` deprecated** (19.0) - use `self.env.cr`, `self.env.context`, `self.env.uid`
+6. **Demo data no longer loaded by default** (since 18.3) - explicitly enable it when scaffolding demo data
+7. **`<chatter/>` tag** replaces the old `oe_chatter` div markup (since 18.0)
 
 ## Module Development
 
@@ -149,7 +152,7 @@ class MainModel(models.Model):
     # Selection Field
     state = fields.Selection([
         ('draft', 'Draft'),
-        'confirmed', 'Confirmed'),
+        ('confirmed', 'Confirmed'),
         ('done', 'Done'),
         ('cancelled', 'Cancelled'),
     ], string='Status', default='draft', tracking=True)
@@ -199,10 +202,10 @@ class MainModel(models.Model):
         index=True,
     )
 
-    # Constraints
-    _sql_constraints = [
-        ('name_unique', 'UNIQUE(name)', 'Reference must be unique!'),
-    ]
+    # Constraints and indexes (Odoo 18.1+): declared as model attributes
+    # whose name must start with `_`. Prefer this over `_sql_constraints`.
+    _name_unique = models.Constraint('UNIQUE(name)', 'Reference must be unique!')
+    _partner_idx = models.Index('(partner_id, company_id)')
 
     @api.depends('line_ids.amount')
     def _compute_total_amount(self):
@@ -396,7 +399,7 @@ registry.category("actions").add("module_name.my_component", MyComponent);
                 </div>
                 <group>
                     <group>
-                        <field name="partner_id" widget="many2one_avoid_use"/>
+                        <field name="partner_id"/>
                         <field name="date" widget="date"/>
                     </group>
                     <group>
@@ -423,24 +426,25 @@ registry.category("actions").add("module_name.my_component", MyComponent);
 </record>
 ```
 
-### New Odoo 19.0 Field Widgets
+### Common Field Widgets (verified against 19.0 view architecture reference)
 
 ```xml
-<!-- AI Text Assistant -->
-<field name="ai_content" widget="ai_text_assistant" options="{'max_length': 5000}"/>
+<!-- Tags -->
+<field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_quick_create': True}"/>
 
-<!-- Rich Text Content -->
-<field name="rich_content" widget="rich_text_content"/>
+<!-- Statusbar with clickable steps -->
+<field name="state" widget="statusbar" statusbar_visible="draft,confirmed,done" options="{'clickable': 1}"/>
 
-<!-- Enhanced Selection -->
-<field name="category" widget="selection_badge"/>
+<!-- Smart button stat info -->
+<field name="total_inv" widget="statinfo" string="Invoices"/>
 
-<!-- Mobile-Optimized Date -->
-<field name="date" widget="date" options="{'mobile': true}"/>
-
-<!-- Enhanced Many2one -->
-<field name="partner_id" widget="many2one_avoid_use" options="{'no_create': True, 'no_open': True}"/>
+<!-- Many2one with create/open restrictions -->
+<field name="partner_id" options="{'no_create': True, 'no_open': True}"/>
 ```
+
+> **Note:** Widget names change frequently between versions. Always confirm a widget exists in the
+> [View Architectures reference](https://www.odoo.com/documentation/19.0/developer/reference/user_interface/view_architectures.html)
+> before relying on it — don't assume a widget exists just because it sounds plausible.
 
 ## Security
 
@@ -639,11 +643,11 @@ const orm = owl.Component.current?.services?.orm;
 
 ### From 18.0 to 19.0
 
-1. **Python 3.11+ Required** - Update CI/CD and development environments
+1. **PostgreSQL 13+ Required** - the 19.0 minimum was raised from PostgreSQL 12; Python minimum stays at 3.10+
 2. **OWL 2.0** - Convert OWL 1.x components to OWL 2.0 syntax
-3. **New Widget Names** - Update widget references in views
+3. **`odoo.osv` and `record._cr`/`_context`/`_uid` deprecated** - use `self.env.cr`/`self.env.context`/`self.env.uid`
 4. **Asset Bundle Changes** - Use module-based asset loading
-5. **API Deprecations** - Replace deprecated ORM methods
+5. **API Deprecations** - `read_group` → `_read_group`/`formatted_read_group`; `_sql_constraints` → `models.Constraint`/`models.Index`
 
 ### Frontend Migration (OWL 1.x to 2.0)
 
@@ -748,17 +752,22 @@ def _read_group(self, domain, groupby, aggregates):
 # Old
 @route('/path', type='json')
 # New
-@route('/path', type='jsonrpc')
+@route('/path', type='jsonrpc')  # same behavior, only the type value was renamed (18.1+)
+
+# Old
+self.read_group(domain, fields, groupby)
+# New: read_group is deprecated (18.2+)
+self._read_group(domain, groupby, aggregates)  # backend use
+self.formatted_read_group(domain, groupby, aggregates)  # public/RPC API
 
 # Old: _sql_constraints
 _sql_constraints = [
     ('name_unique', 'UNIQUE(name)', 'Name must be unique!'),
 ]
 
-# New (Odoo 19)
-_constraints = [
-    models.Constraint('UNIQUE(name)', 'Name must be unique!'),
-]
+# New (since Odoo 18.1): individual model attributes, name must start with `_`
+_name_unique = models.Constraint('UNIQUE(name)', 'Name must be unique!')
+_name_idx = models.Index('(last_name, first_name)')
 ```
 
 ## References

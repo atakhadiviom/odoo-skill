@@ -45,7 +45,7 @@ Create an Odoo-specific bug fix workflow with the following structure:
    - Identify deployment environment (local, Docker, Odoo.sh)
    - Review system configuration and database state
    - Check for version-specific known issues
-   - For Odoo 19.0: Check OWL 2.0 components and Python 3.11+ compatibility
+   - For Odoo 19.0: Check OWL 2.0 components and Python 3.10+ compatibility
 
 3. **Bug Reproduction Strategy**
    - Create systematic reproduction steps

@@ -218,26 +218,24 @@ export class MyComponent extends Component {
 }
 ```
 
-### Odoo 19.0 Widget Extensions
+### Field Definitions Backing Widgets
 ```python
-# Python-side field widget registration
+# The `widget` attribute belongs in the view XML, not the field definition.
+# The Python side only defines the field type/options; the view chooses the widget.
 from odoo import models, fields
 
 class MyModel(models.Model):
     _name = 'my.model'
 
-    # Odoo 19.0 AI text assistant widget
-    ai_enhanced_text = fields.Text(
-        string='AI Enhanced Text',
-        widget='ai_text_assistant',
-    )
+    description = fields.Text(string='Description')
 
-    # Rich text content with WYSIWYG
+    # Sanitized HTML content, rendered with widget="html" in the view
     rich_content = fields.Html(
         string='Content',
-        widget='rich_text_content',
+        sanitize=True,
     )
 ```
+> Always confirm a widget name against the [View Architectures reference](https://www.odoo.com/documentation/19.0/developer/reference/user_interface/view_architectures.html) before using it — don't invent widget names.
 
 ### Asset Bundle Configuration (Odoo 19.0)
 ```xml
@@ -416,7 +414,7 @@ class LineModel(models.Model):
                 </div>
                 <group>
                     <group>
-                        <field name="partner_id" widget="many2one_avoid_use"/>
+                        <field name="partner_id"/>
                         <field name="company_id" groups="base.group_multi_company"/>
                     </group>
                     <group>
@@ -427,12 +425,12 @@ class LineModel(models.Model):
                 <notebook>
                     <page string="Lines" name="lines">
                         <field name="line_ids">
-                            <tree editable="bottom">
-                                <field name="product_id" widget="many2one_avoid_use"/>
+                            <list editable="bottom">
+                                <field name="product_id"/>
                                 <field name="quantity"/>
                                 <field name="unit_price" widget="monetary"/>
                                 <field name="subtotal" widget="monetary"/>
-                            </tree>
+                            </list>
                             <form>
                                 <group>
                                     <field name="product_id"/>
@@ -449,47 +447,38 @@ class LineModel(models.Model):
                     </page>
                 </notebook>
             </sheet>
-            <div class="oe_chatter">
-                <field name="message_follower_ids"/>
-                <field name="message_ids"/>
-                <field name="activity_ids"/>
-            </div>
+            <chatter/>
         </form>
     </field>
 </record>
 ```
 
-### Odoo 19.0 New Field Widgets
+### Common Field Widgets (verified against the 19.0 View Architectures reference)
 ```xml
-<!-- AI Text Assistant Widget (Odoo 19.0) -->
-<field name="ai_assisted_content" widget="ai_text_assistant"
-       options="{'max_length': 5000, 'suggestions': true}"/>
+<!-- Rich HTML content -->
+<field name="rich_description" widget="html"/>
 
-<!-- Rich Text Content with Enhanced Editor -->
-<field name="rich_description" widget="rich_text_content"
-       options="{'collaborative': true, 'media': true}"/>
+<!-- Statusbar with clickable steps -->
+<field name="state" widget="statusbar" statusbar_visible="draft,confirmed,done" options="{'clickable': 1}"/>
 
-<!-- Mobile-Optimized Date Picker -->
-<field name="date_field" widget="date" options="{'picker_options': {'mobile': true}}"/>
-
-<!-- Enhanced Kanban Status Widget -->
-<field name="state" widget="kanban_state_selection"
-       options="{'clickable': '1', 'fold_field': 'fold_state'}"/>
+<!-- Tags -->
+<field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
 ```
+> Confirm a widget exists in the [View Architectures reference](https://www.odoo.com/documentation/19.0/developer/reference/user_interface/view_architectures.html) before using it.
 
-### Tree View Structure
+### List View Structure
 ```xml
 <record id="view_main_model_tree" model="ir.ui.view">
-    <field name="name">main.model.tree</field>
+    <field name="name">main.model.list</field>
     <field name="model">{{MODULE_NAME}}.main</field>
     <field name="arch" type="xml">
-        <tree string="Main Models">
+        <list string="Main Models">
             <field name="name"/>
             <field name="partner_id"/>
             <field name="total_amount"/>
             <field name="state"/>
             <field name="create_date"/>
-        </tree>
+        </list>
     </field>
 </record>
 ```

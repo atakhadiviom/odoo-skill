@@ -5,7 +5,7 @@ A comprehensive development skill for [Claude Code](https://claude.ai/code) that
 ## Features
 
 - **13 Slash Commands** for Odoo-specific workflows
-- **Odoo 19.0 Support** including OWL 2.0, Python 3.11+, PostgreSQL 15+
+- **Odoo 19.0 Support** including OWL 2.0, Python 3.10+, PostgreSQL 13+
 - **Module Scaffolding Script** for quick module creation
 - **Reference Documentation** built-in as a Claude skill
 - **Specification Templates** for requirements, design, and implementation tasks
@@ -13,12 +13,14 @@ A comprehensive development skill for [Claude Code](https://claude.ai/code) that
 
 ## Version Support
 
-| Odoo Version | Python | PostgreSQL | LTS Status |
-|--------------|--------|------------|------------|
+| Odoo Version | Python (min) | PostgreSQL (min) | LTS Status |
+|--------------|--------------|-------------------|------------|
 | 14.0 - 16.0 | 3.8 - 3.10 | 12 - 14 | Maintenance |
 | 17.0 | 3.10 | 14 | LTS until 2034-05 |
-| 18.0 | 3.11 | 15 | Stable |
-| **19.0** | **3.11+** | **15+** | **LTS (Primary)** |
+| 18.0 | 3.10 | 12 | Stable |
+| **19.0** | **3.10+** | **13+** | **LTS (Primary)** |
+
+Verified against the [Odoo 19.0 install-from-source docs](https://www.odoo.com/documentation/19.0/administration/on_premise/source.html).
 
 ## Installation
 
@@ -130,17 +132,17 @@ export class MyComponent extends Component {
 }
 ```
 
-### New Field Widgets
+### Common Field Widgets
 
 ```xml
-<!-- AI Text Assistant -->
-<field name="content" widget="ai_text_assistant"/>
+<!-- Rich HTML content -->
+<field name="description" widget="html"/>
 
-<!-- Rich Text Content -->
-<field name="description" widget="rich_text_content"/>
+<!-- Statusbar -->
+<field name="state" widget="statusbar" options="{'clickable': 1}"/>
 
-<!-- Enhanced Kanban -->
-<field name="state" widget="kanban_state_selection" options="{'clickable': '1'}"/>
+<!-- Tags -->
+<field name="tag_ids" widget="many2many_tags"/>
 ```
 
 ## Directory Structure

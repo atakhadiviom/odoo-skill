@@ -43,9 +43,8 @@ odoo-skill/
 ### 1. Odoo 19.0 Support
 
 **config.json** includes:
-- Odoo 19.0 configuration (Python 3.11+, PostgreSQL 15+)
+- Odoo 19.0 configuration (Python 3.10+, PostgreSQL 13+ minimums)
 - OWL 2.0 frontend framework
-- New field widgets (ai_text_assistant, rich_text_content)
 - Enhanced mobile responsiveness
 - Performance improvements
 
@@ -95,8 +94,8 @@ odoo-skill/
 All templates updated with:
 - Odoo 19.0 specific patterns
 - OWL 2.0 component examples
-- New field widget usage
-- Python 3.11+ compatibility
+- Verified field widget usage
+- Python 3.10+ compatibility
 
 ## Usage Examples
 
@@ -122,9 +121,9 @@ The SKILL.md file is automatically available when working on Odoo projects.
 ## Odoo 19.0 Key Changes
 
 1. **Frontend**: OWL 2.0 (complete rewrite from OWL 1.x)
-2. **Python**: 3.11+ required (vs 3.10 in 18.0)
-3. **PostgreSQL**: 15+ required (vs 14 in 18.0)
-4. **New Widgets**: ai_text_assistant, rich_text_content
+2. **Python**: 3.10+ minimum (unchanged since 17.0)
+3. **PostgreSQL**: 13+ minimum (raised from 12 in 19.0)
+4. **ORM**: `models.Constraint`/`models.Index` supersede `_sql_constraints`; `read_group` deprecated for `_read_group`/`formatted_read_group`
 5. **Performance**: Lazy loading, optimized rendering
 
 ## Next Steps

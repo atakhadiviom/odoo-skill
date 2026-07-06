@@ -56,7 +56,7 @@ Create a comprehensive Odoo feature specification using odoo-requirements-templa
   - Dashboard and reporting integration
 - **Frontend Components (Odoo 19.0)**:
   - OWL 2.0 component structure
-  - New AI-assisted widgets (ai_text_assistant, rich_text_content)
+  - Standard widgets confirmed against the [View Architectures reference](https://www.odoo.com/documentation/19.0/developer/reference/user_interface/view_architectures.html) (e.g. `html`, `many2many_tags`, `statusbar`) — never invent widget names
   - Mobile-responsive form designs
   - Enhanced asset bundle configuration
 - **Security Framework**:

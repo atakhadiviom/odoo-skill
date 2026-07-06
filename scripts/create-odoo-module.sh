@@ -16,7 +16,7 @@ ODOO_VERSION="19.0"
 AUTHOR="Your Company"
 LICENSE="LGPL-3"
 CATEGORY="Tools"
-PYTHON_VERSION="3.11"
+PYTHON_VERSION="3.10"
 
 # Function to print colored output
 print_info() {
@@ -220,10 +220,8 @@ class ${class_name}(models.Model):
         default=True,
     )
 
-    # Constraints
-    _sql_constraints = [
-        ('name_unique', 'UNIQUE(name)', 'Name must be unique!'),
-    ]
+    # Constraints and indexes (Odoo 18.1+): model attributes, name starts with `_`
+    _name_unique = models.Constraint('UNIQUE(name)', 'Name must be unique!')
 
     @api.constrains('name')
     def _check_name(self):

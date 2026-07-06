@@ -70,16 +70,21 @@ Interactive script that creates:
 
 The `.odoo-dev/config.json` defines supported versions:
 
-| Version | Python | PostgreSQL | LTS |
-|---------|--------|------------|-----|
+| Version | Python (min) | PostgreSQL (min) | LTS |
+|---------|--------------|-------------------|-----|
 | 17.0 | 3.10 | 14 | Yes (until 2034-05) |
-| 18.0 | 3.11 | 15 | No |
-| 19.0 | 3.11+ | 15+ | Yes (primary target) |
+| 18.0 | 3.10 | 12 | No |
+| 19.0 | 3.10+ | 13+ | Yes (primary target) |
 
-**Odoo 19.0 Key Changes:**
+Verified against the [Odoo 19.0 install-from-source docs](https://www.odoo.com/documentation/19.0/administration/on_premise/source.html); these are official minimums, not what's typically deployed.
+
+**Odoo 19.0 Key Changes (per the [ORM changelog](https://www.odoo.com/documentation/19.0/developer/reference/backend/orm/changelog.html)):**
 - Frontend: OWL 2.0 (complete rewrite from OWL 1.x)
-- New widgets: `ai_text_assistant`, `rich_text_content`
-- Enhanced mobile responsiveness
+- `models.Constraint`/`models.Index` model attributes supersede `_sql_constraints` (since 18.1)
+- `read_group` deprecated in favor of `_read_group`/`formatted_read_group` (since 18.2)
+- `@route(type='json')` renamed to `@route(type='jsonrpc')` (since 18.1)
+- `odoo.osv`, `record._cr`/`_context`/`_uid` deprecated in favor of `self.env.*` (19.0)
+- Demo data no longer loaded by default (since 18.3)
 - Asset bundle structure changes
 
 ## Reference Skill

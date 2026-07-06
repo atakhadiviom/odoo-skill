@@ -207,7 +207,7 @@ Module development based on Odoo {{ODOO_VERSION}} framework, following MVC archi
 
 - [ ] 18. Optimize performance and add indexes
   - Files: `{{MODULE_NAME}}/models/main_model.py`, `{{MODULE_NAME}}/models/line_model.py`
-  - Add database indexes on frequently queried fields (_sql_constraints)
+  - Add database indexes on frequently queried fields (models.Index model attributes, Odoo 18.1+)
   - Optimize search and read method performance
   - Use _order to set reasonable default sorting
   - Ensure query performance with large amounts of data

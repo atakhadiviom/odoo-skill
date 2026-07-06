@@ -29,38 +29,27 @@
       "eol_date": "2034-05-01"
     },
     "18.0": {
-      "python_version": "3.11",
-      "postgresql_version": "15",
+      "python_version": "3.10",
+      "postgresql_version": "12",
       "supported": true,
       "lts": false,
       "eol_date": "2035-11-01"
     },
     "19.0": {
-      "python_version": "3.11",
-      "postgresql_version": "15",
+      "python_version": "3.10",
+      "postgresql_version": "13",
       "supported": true,
       "lts": true,
       "eol_date": "2036-05-01",
       "features": {
         "owl_version": "2.0",
-        "web_framework": "OWL 2.0 with houston",
-        "new_widgets": [
-          "ai_text_assistant",
-          "rich_text_content",
-          "enhanced_kanban",
-          "mobile_responsive_forms"
-        ],
-        "api_changes": [
-          "Updated ORM decorators",
-          "Enhanced API endpoints",
-          "Improved async handling",
-          "New webhook system"
-        ],
-        "frontend_improvements": [
-          "OWL 2.0 component architecture",
-          "Enhanced mobile responsiveness",
-          "Improved performance with lazy loading",
-          "New UI component library"
+        "web_framework": "OWL 2.0",
+        "orm_changes": [
+          "models.Constraint / models.Index as model attributes (since 18.1), superseding _sql_constraints",
+          "read_group deprecated in favor of _read_group (internal) and formatted_read_group (public API) (since 18.2)",
+          "json controller type renamed to jsonrpc (since 18.1)",
+          "odoo.osv deprecated; record._cr/_context/_uid deprecated in favor of self.env.cr/context/uid (19.0)",
+          "Demo data no longer loaded by default (since 18.3)"
         ]
       }
     }
@@ -120,7 +109,7 @@
     }
   },
   "python_standards": {
-    "version": "3.11+",
+    "version": "3.10+",
     "style_guide": "PEP 8",
     "max_line_length": 100,
     "import_order": [
@@ -131,7 +120,7 @@
     ]
   },
   "postgresql_standards": {
-    "version": "15+",
+    "version": "13+",
     "extensions": ["unaccent", "pg_trgm"],
     "optimizations": {
       "indexes": true,
